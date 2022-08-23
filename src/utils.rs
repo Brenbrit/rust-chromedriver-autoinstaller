@@ -1,10 +1,18 @@
+/*  This file is a fairly faithful recreation of Yeongbin Jo's
+    python-chromedriver-autoinstaller/src/utils.py.
+    For this reason, I have included three functions which
+    cannot be used and have added the below line to ignore
+    the compiler's warning about them.
+ */ 
+#![allow(dead_code)]
+
 use is_executable::IsExecutable;
 use std::process::{Command, Stdio};
 use quick_xml::{Reader, events::Event};
 use regex::Regex;
-use reqwest;
 use std::{env, fs, io::{BufReader, Error, ErrorKind, Write}, string};
 use std::path::{Path, PathBuf};
+use ureq;
 use which::which;
 use zip::ZipArchive;
 
@@ -339,9 +347,9 @@ pub fn get_matched_chromedriver_version(version: &str, no_ssl: bool) -> Result<S
         false => {"https://chromedriver.storage.googleapis.com"}
     };
 
-    let resp = reqwest::blocking::get(doc)
+    let resp = ureq::get(doc).call()
     .expect("Failed to get chromedriver version page")
-    .text()
+    .into_string()
     .expect("Failed to read chromedriver version page");
 
     let mut major_version = get_major_version(version);
@@ -524,16 +532,17 @@ pub fn download_chromedriver(path: Option<&str>, no_ssl: bool) -> Result<String,
         }
 
         let url = &get_chromedriver_url(&chromedriver_version[..], no_ssl)[..];
-        let resp = reqwest::blocking::get(url)
+        let resp = ureq::get(url).call()
         .expect(&format!("Failed to download chromedriver archive: {}", url)[..]);
 
         let path = Path::new(chromedriver_filename);
         {
             let mut archive = fs::File::create(&path)
             .expect("Failed to create archive file");
-            let content = resp.bytes();
-            archive.write_all(&content
-                .expect("Failed to read archive contents from the internet"))
+            let mut bytes: Vec<u8> = Vec::new();
+            resp.into_reader().read_to_end(&mut bytes)
+            .expect("Failed to read chromedriver data from the internet");
+            archive.write_all(&bytes)
             .expect("Failed to write content to chromedriver archive");
         }
 

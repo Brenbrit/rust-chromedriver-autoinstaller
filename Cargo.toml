@@ -9,6 +9,6 @@ edition = "2021"
 is_executable = "1"
 quick-xml = "0"
 regex = "1"
-reqwest = { version = "0.11", features = ["blocking"]}
+ureq = "*"
 which = "4"
 zip = "0"
