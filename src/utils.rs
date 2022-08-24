@@ -486,20 +486,14 @@ pub fn download_chromedriver(path: Option<&str>, no_ssl: bool) -> Result<String,
     let chromedriver_dir = &match path {
         // the function was supplied a directory
         Some(p) => {
-            if !(fs::metadata(p)
-                .expect("Failed to get metadata for chromedriver directory")
-                .is_dir()) {
-                return Err(Error::new(
-                    ErrorKind::NotFound,
-                    format!("Invalid path: {}", p)));
-            } else {
-                String::from(PathBuf::from(p).join(major_version)
-                .to_str().unwrap())
-            }
+            String::from(PathBuf::from(p).to_str().unwrap())
         },
         // the function was not supplied a directory
-        None => String::from(PathBuf::from(env::current_dir().unwrap())
-            .join(major_version).to_str().unwrap()),
+        None => {
+            String::from(
+                PathBuf::from(env::current_dir().unwrap())
+                .join(major_version).to_str().unwrap())
+        }
     }[..];
 
     let chromedriver_filename = &get_chromedriver_filename()[..];
@@ -509,14 +503,7 @@ pub fn download_chromedriver(path: Option<&str>, no_ssl: bool) -> Result<String,
 
     if !(Path::new(chromedriver_filepath).exists())
     || !(check_version(chromedriver_filepath, &chromedriver_version[..])) {
-        match fs::metadata(chromedriver_dir) {
-            Err(ref e) if e.kind() == ErrorKind::NotFound => {
-                fs::create_dir_all(chromedriver_dir)
-                .expect("Failed to create chromedriver directory")
-            },
-            Err(e) => return Err(e),
-            _ => ()
-        }
+        fs::create_dir_all(chromedriver_dir).ok();
 
         let url = &get_chromedriver_url(&chromedriver_version[..], no_ssl)[..];
         let resp = ureq::get(url).call()
@@ -544,7 +531,7 @@ pub fn download_chromedriver(path: Option<&str>, no_ssl: bool) -> Result<String,
         println!("Chromedriver is already installed.");
     }
     
-    Ok(chromedriver_filepath.to_string())
+    Ok(String::from(chromedriver_filepath))
 }
 
 
