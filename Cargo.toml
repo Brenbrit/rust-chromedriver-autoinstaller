@@ -2,6 +2,11 @@
 name = "chromedriver-autoinstaller"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Verifies that the correct Chromedriver is installed and in Path"
+repository = "https://github.com/Brenbrit/rust-chromedriver-autoinstaller"
+readme = "README.md"
+keywords = ["chrome", "chromedriver"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
