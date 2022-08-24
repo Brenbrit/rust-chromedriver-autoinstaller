@@ -26,18 +26,28 @@ use std::{env, path::Path};
 
 pub fn install(cwd: bool, path: Option<&str>, no_ssl: bool) -> Result<String, std::io::Error> {
 
-    let path_to_use = match cwd {
+    // Where will we be installing the chromedriver?
+    // This evaluates to a String (which may be "") to resolve ownership issues
+    // regarding the abs_path_string() call.
+    let path_to_use: String = match cwd {
+        // cwd == true, so use the current working directory.
         true => utils::abs_path_string(
-            env::current_dir().unwrap()),
+            env::current_dir().unwrap())
+            .to_string(),
+        // cwd == false, so use whatever the supplied "path" is.
         false => match path {
             Some(p) => p.to_string(),
-            None => panic!("No download path provided")
-        }
+            None => "".to_string(),
+        },
     };
 
+    // run download_chromedriver()
     let chromedriver_filepath = match utils::download_chromedriver(
-        Some(&path_to_use), no_ssl) {
-        Ok(_) => path_to_use,
+        match path_to_use.as_str() {
+            "" => None,
+            _ => Some(path_to_use.as_str()),
+        }, no_ssl) {
+        Ok(used_path) => used_path,
         Err(e) => return Err(e)
     };
 
@@ -85,7 +95,7 @@ pub fn get_chrome_version() -> Result<String, std::io::Error> {
 #[test]
 fn test() {
     println!("Tests: ");
-    println!("Chromedriver filename is {}", utils::get_chromedriver_filename());
+    /* println!("Chromedriver filename is {}", utils::get_chromedriver_filename());
     println!("Variable separator is {}", utils::get_variable_separator());
     let (platform, arch) = utils::get_platform_architecture();
     println!("Platform architecture is {} {}", platform, arch);
@@ -107,5 +117,6 @@ fn test() {
     match utils::download_chromedriver(None, false) {
         Ok(_) => (),
         Err(e) => println!("{}", e)
-    };
+    }; */
+    install(false, None, false).unwrap();
 }
