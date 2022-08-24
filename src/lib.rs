@@ -95,7 +95,7 @@ pub fn get_chrome_version() -> Result<String, std::io::Error> {
 #[test]
 fn test() {
     println!("Tests: ");
-    /* println!("Chromedriver filename is {}", utils::get_chromedriver_filename());
+    println!("Chromedriver filename is {}", utils::get_chromedriver_filename());
     println!("Variable separator is {}", utils::get_variable_separator());
     let (platform, arch) = utils::get_platform_architecture();
     println!("Platform architecture is {} {}", platform, arch);
@@ -117,6 +117,6 @@ fn test() {
     match utils::download_chromedriver(None, false) {
         Ok(_) => (),
         Err(e) => println!("{}", e)
-    }; */
+    };
     install(false, None, false).unwrap();
 }
