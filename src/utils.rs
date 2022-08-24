@@ -482,8 +482,9 @@ pub fn download_chromedriver(path: Option<&str>, no_ssl: bool) -> Result<String,
     .expect("Failed to get matched chromedriver version")[..];
     let major_version = &get_major_version(&chromedriver_version[..])[..];
 
-
+    // finding the directory to place the chromedriver
     let chromedriver_dir = &match path {
+        // the function was supplied a directory
         Some(p) => {
             if !(fs::metadata(p)
                 .expect("Failed to get metadata for chromedriver directory")
@@ -492,33 +493,19 @@ pub fn download_chromedriver(path: Option<&str>, no_ssl: bool) -> Result<String,
                     ErrorKind::NotFound,
                     format!("Invalid path: {}", p)));
             } else {
-                env::join_paths([
-                    abs_path_string(
-                        PathBuf::from(p)),
-                    major_version.to_string()].iter())
-                .expect("Failed to join chromedriver directory path")
-                .to_str()
-                .expect("Failed to convert chromedriver directory to string")
-                .to_string()
+                String::from(PathBuf::from(p).join(major_version)
+                .to_str().unwrap())
             }
         },
-        None => env::join_paths([
-            abs_path_string(env::current_dir()
-                .expect("Could not find current directory")),
-            major_version.to_string()].iter())
-        .expect("Failed to join paths")
-        .to_str()
-        .expect("Failed to convert chromedriver directory to string")
-        .to_string(),
+        // the function was not supplied a directory
+        None => String::from(PathBuf::from(env::current_dir().unwrap())
+            .join(major_version).to_str().unwrap()),
     }[..];
 
     let chromedriver_filename = &get_chromedriver_filename()[..];
-    let chromedriver_filepath = &env::join_paths([
-        chromedriver_dir,
-        chromedriver_version].iter())
-    .expect("Failed to join chromedriver filepath")
-    .to_str().unwrap()
-    .to_string()[..];
+    let chromedriver_filepath = &String::from(
+        PathBuf::from(chromedriver_dir)
+        .join(chromedriver_filename).to_str().unwrap())[..];
 
     if !(Path::new(chromedriver_filepath).exists())
     || !(check_version(chromedriver_filepath, &chromedriver_version[..])) {
