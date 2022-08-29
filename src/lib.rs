@@ -54,7 +54,7 @@ pub fn install(cwd: bool, path: Option<&str>, no_ssl: bool) -> Result<String, st
     let chromedriver_dir = Path::new(&chromedriver_filepath)
     .parent().unwrap()
     .to_str().unwrap();
-    
+
     if let Ok(path) = env::var("PATH") {
         // path is set
         let path = path.to_string();
@@ -68,7 +68,7 @@ pub fn install(cwd: bool, path: Option<&str>, no_ssl: bool) -> Result<String, st
 
             env::set_var("PATH", new_path);
         }
-        
+
     } else {
         // path is not set
         env::set_var("PATH", chromedriver_dir);
