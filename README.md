@@ -17,4 +17,4 @@ fn main() {
 }
 ```
 
-I have only tested the library on Windows. If you've got a Mac or Linux computer and find an error, please open an issue or submit a PR!
+I have only tested the library on Windows and Linux. If you've got a Mac and find an error, please open an issue or submit a PR!
